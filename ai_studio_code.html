@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>DVDS Project ZIP Generator</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+  <style>
+    body { font-family: sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; background: #f0fdf4; margin: 0; }
+    .card { background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); text-align: center; max-width: 420px; }
+    button { background: #16a34a; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 1rem; }
+    button:hover { background: #15803d; }
+    #status { margin-top: 15px; font-size: 0.9rem; color: #475569; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>Digital Village Development System</h2>
+    <p>Click below to generate and download the complete project ZIP archive ready for Vercel & Vite.</p>
+    <button id="downloadBtn">Download digital-village-dvds.zip</button>
+    <p id="status"></p>
+  </div>
+
+  <script>
+    const files = {
+      "package.json": JSON.stringify({
+        "name": "digital-village-dvds",
+        "private": true,
+        "version": "1.0.0",
+        "type": "module",
+        "scripts": {
+          "dev": "vite",
+          "build": "tsc && vite build",
+          "preview": "vite preview"
+        },
+        "dependencies": {
+          "clsx": "^2.1.1",
+          "lucide-react": "^0.344.0",
+          "react": "^18.3.1",
+          "react-dom": "^18.3.1"
+        },
+        "devDependencies": {
+          "@types/react": "^18.3.5",
+          "@types/react-dom": "^18.3.0",
+          "@vitejs/plugin-react": "^4.3.1",
+          "autoprefixer": "^10.4.19",
+          "postcss": "^8.4.38",
+          "tailwindcss": "^3.4.4",
+          "typescript": "^5.5.3",
+          "vite": "^5.4.2"
+        }
+      }, null, 2),
+
+      "vite.config.ts": `import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+
+export default defineConfig({
+  plugins: [react()],
+  server: { port: 3000, open: true }
+});`,
+
+      "tsconfig.json": JSON.stringify({
+        "compilerOptions": {
+          "target": "ES2020",
+          "useDefineForClassFields": true,
+          "lib": ["ES2020", "DOM", "DOM.Iterable"],
+          "module": "ESNext",
+          "skipLibCheck": true,
+          "moduleResolution": "bundler",
+          "allowImportingTsExtensions": true,
+          "resolveJsonModule": true,
+          "isolatedModules": true,
+          "noEmit": true,
+          "jsx": "react-jsx",
+          "strict": true,
+          "noUnusedLocals": true,
+          "noUnusedParameters": true,
+          "noFallthroughCasesInSwitch": true
+        },
+        "include": ["src"]
+      }, null, 2),
+
+      "tailwind.config.js": `/** @type {import('tailwindcss').Config} */
+export default {
+  content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
+  theme: {
+    extend: {
+      colors: {
+        panchayat: {
+          green: { 50: '#f0fdf4', 100: '#dcfce7', 600: '#16a34a', 700: '#15803d', 800: '#166534' },
+          blue: { 50: '#eff6ff', 100: '#dbeafe', 600: '#2563eb', 700: '#1d4ed8' }
+        }
+      }
+    }
+  },
+  plugins: []
+};`,
+
+      "postcss.config.js": `export default {
+  plugins: {
+    tailwindcss: {},
+    autoprefixer: {},
+  },
+};`,
+
+      "index.html": `<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#16a34a" />
+    <meta name="description" content="Digital Village Development System (DVDS) - Gram Panchayat E-Governance Portal" />
+    <link rel="manifest" href="/manifest.json" />
+    <title>DVDS | Digital Village Development System</title>
+  </head>
+  <body class="bg-slate-50 antialiased selection:bg-emerald-500 selection:text-white">
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>`,
+
+      "public/manifest.json": JSON.stringify({
+        "short_name": "DVDS",
+        "name": "Digital Village Development System",
+        "icons": [{ "src": "/favicon.svg", "type": "image/svg+xml", "sizes": "192x192 512x512" }],
+        "start_url": "/",
+        "background_color": "#f0fdf4",
+        "theme_color": "#16a34a",
+        "display": "standalone",
+        "orientation": "portrait"
+      }, null, 2),
+
+      "public/sw.js": `const CACHE_NAME = 'dvds-v1';
+const urlsToCache = ['/', '/index.html', '/manifest.json'];
+
+self.addEventListener('install', (event) => {
+  event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(urlsToCache)));
+  self.skipWaiting();
+});
+
+self.addEventListener('fetch', (event) => {
+  event.respondWith(caches.match(event.request).then((resp) => resp || fetch(event.request)));
+});`,
+
+      "public/favicon.svg": `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="64" height="64" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M3 21h18"/><path d="M5 21V7l8-4v18"/><path d="M19 21V11l-6-4"/><path d="M9 9h1"/><path d="M9 13h1"/><path d="M9 17h1"/>
+</svg>`,
+
+      "src/index.css": `@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background-color: #f8fafc;
+  color: #1e293b;
+}`,
+
+      "src/types/index.ts": `export type Role = 'citizen' | 'admin';
+export type Status = 'Submitted' | 'In Progress' | 'Resolved' | 'Rejected';
+export type ComplaintCategory = 'Drinking Water' | 'Electricity' | 'Road Maintenance' | 'Sanitation & Drainage' | 'Streetlights' | 'Other Public Utility';
+
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  passwordHash: string;
+  role: Role;
+  village: string;
+  wardNumber: string;
+  phone: string;
+  createdAt: string;
+}
+
+export interface Complaint {
+  id: string;
+  citizenId: string;
+  citizenName: string;
+  village: string;
+  ward: string;
+  category: ComplaintCategory;
+  description: string;
+  locationDetails: string;
+  status: Status;
+  adminRemark?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ServiceApplication {
+  id: string;
+  citizenId: string;
+  citizenName: string;
+  village: string;
+  serviceType: string;
+  details: string;
+  status: Status;
+  submissionDate: string;
+}
+
+export interface DevelopmentProject {
+  id: string;
+  title: string;
+  description: string;
+  location: string;
+  budgetInLakhs: number;
+  spentInLakhs: number;
+  progressPercent: number;
+  status: 'Planning' | 'Under Construction' | 'Completed';
+  contractor: string;
+  targetCompletion: string;
+}
+
+export interface Announcement {
+  id: string;
+  title: string;
+  category: 'Gram Sabha' | 'Health Camp' | 'Subsidy & Agriculture' | 'Notice';
+  content: string;
+  date: string;
+  priority: 'Normal' | 'High' | 'Urgent';
+  postedBy: string;
+}`,
+
+      "src/services/storage.ts": `import { User, Complaint, ServiceApplication, DevelopmentProject, Announcement, Status } from '../types';
+
+export async function hashPassword(plainText: string): Promise<string> {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(plainText);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+export const StorageService = {
+  initializeSeeds: async () => {
+    if (!localStorage.getItem('dvds_users_db')) {
+      const adminPass = await hashPassword('Admin@123');
+      const citizenPass = await hashPassword('Ramesh@123');
+      localStorage.setItem('dvds_users_db', JSON.stringify([
+        { id: 'USR-ADMIN-01', name: 'Panchayat Sachiv', email: 'admin@panchayat.gov.in', passwordHash: adminPass, role: 'admin', village: 'Rampur', wardNumber: 'HQ', phone: '9876543210', createdAt: new Date().toISOString() },
+        { id: 'USR-CITIZEN-01', name: 'Ramesh Kumar Patel', email: 'ramesh@gmail.com', passwordHash: citizenPass, role: 'citizen', village: 'Rampur', wardNumber: 'Ward 4', phone: '9898765432', createdAt: new Date().toISOString() }
+      ]));
+    }
+    if (!localStorage.getItem('dvds_complaints_db')) {
+      localStorage.setItem('dvds_complaints_db', JSON.stringify([
+        { id: 'CMP-2026-001', citizenId: 'USR-CITIZEN-01', citizenName: 'Ramesh Patel', village: 'Rampur', ward: 'Ward 4', category: 'Drinking Water', description: 'Community handpump broken near school.', locationDetails: 'Ward 4 School lane', status: 'In Progress', adminRemark: 'Lineman assigned.', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }
+      ]));
+    }
+    if (!localStorage.getItem('dvds_projects_db')) {
+      localStorage.setItem('dvds_projects_db', JSON.stringify([
+        { id: 'PRJ-101', title: 'Concrete Road to District Highway', description: '3.2 km all-weather cement road.', location: 'East Ward 1-3', budgetInLakhs: 48.5, spentInLakhs: 36.2, progressPercent: 75, status: 'Under Construction', contractor: 'Balaji Infra', targetCompletion: '2026-06-30' },
+        { id: 'PRJ-102', title: 'Solar RO Drinking Water Plant', description: '1000 LPH filtration unit.', location: 'Panchayat Bhawan', budgetInLakhs: 18.0, spentInLakhs: 18.0, progressPercent: 100, status: 'Completed', contractor: 'Surya CleanTech', targetCompletion: '2026-01-15' }
+      ]));
+    }
+    if (!localStorage.getItem('dvds_announcements_db')) {
+      localStorage.setItem('dvds_announcements_db', JSON.stringify([
+        { id: 'ANN-01', title: 'Monthly Gram Sabha Meeting', category: 'Gram Sabha', content: 'Discussion on annual budget allocation and solar pump subsidies.', date: '2026-03-25', priority: 'High', postedBy: 'Sarpanch Office' }
+      ]));
+    }
+  },
+  getUsers: (): User[] => JSON.parse(localStorage.getItem('dvds_users_db') || '[]'),
+  saveUser: (user: User) => { const u = StorageService.getUsers(); u.push(user); localStorage.setItem('dvds_users_db', JSON.stringify(u)); },
+  getSession: (): User | null => { const d = localStorage.getItem('dvds_session'); return d ? JSON.parse(d) : null; },
+  setSession: (user: User | null) => { user ? localStorage.setItem('dvds_session', JSON.stringify(user)) : localStorage.removeItem('dvds_session'); },
+  getComplaints: (): Complaint[] => JSON.parse(localStorage.getItem('dvds_complaints_db') || '[]'),
+  saveComplaint: (c: Complaint) => { const l = StorageService.getComplaints(); l.unshift(c); localStorage.setItem('dvds_complaints_db', JSON.stringify(l)); },
+  updateComplaintStatus: (id: string, status: Status, remark: string) => {
+    const l = StorageService.getComplaints().map(item => item.id === id ? { ...item, status, adminRemark: remark, updatedAt: new Date().toISOString() } : item);
+    localStorage.setItem('dvds_complaints_db', JSON.stringify(l));
+  },
+  getApplications: (): ServiceApplication[] => JSON.parse(localStorage.getItem('dvds_apps_db') || '[]'),
+  saveApplication: (a: ServiceApplication) => { const l = StorageService.getApplications(); l.unshift(a); localStorage.setItem('dvds_apps_db', JSON.stringify(l)); },
+  getProjects: (): DevelopmentProject[] => JSON.parse(localStorage.getItem('dvds_projects_db') || '[]'),
+  saveProject: (p: DevelopmentProject) => { const l = StorageService.getProjects(); l.unshift(p); localStorage.setItem('dvds_projects_db', JSON.stringify(l)); },
+  getAnnouncements: (): Announcement[] => JSON.parse(localStorage.getItem('dvds_announcements_db') || '[]'),
+  saveAnnouncement: (a: Announcement) => { const l = StorageService.getAnnouncements(); l.unshift(a); localStorage.setItem('dvds_announcements_db', JSON.stringify(l)); }
+};`,
+
+      "src/context/AuthContext.tsx": `import React, { createContext, useContext, useState, useEffect } from 'react';
+import { User } from '../types';
+import { StorageService, hashPassword } from '../services/storage';
+
+interface AuthContextType {
+  currentUser: User | null;
+  login: (email: string, pass: string) => Promise<{ success: boolean; message: string }>;
+  register: (user: Omit<User, 'id' | 'createdAt' | 'passwordHash'>, passwordRaw: string) => Promise<{ success: boolean; message: string }>;
+  logout: () => void;
+  isAdmin: boolean;
+}
+
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    StorageService.initializeSeeds();
+    setCurrentUser(StorageService.getSession());
+  }, []);
+
+  const login = async (email: string, pass: string) => {
+    const hashed = await hashPassword(pass);
+    const user = StorageService.getUsers().find(u => u.email.toLowerCase() === email.toLowerCase());
+    if (!user || user.passwordHash !== hashed) {
+      return { success: false, message: 'Invalid credentials.' };
+    }
+    StorageService.setSession(user);
+    setCurrentUser(user);
+    return { success: true, message: 'Success' };
+  };
+
+  const register = async (userData: any, pass: string) => {
+    const existing = StorageService.getUsers().find(u => u.email.toLowerCase() === userData.email.toLowerCase());
+    if (existing) return { success: false, message: 'Email already registered.' };
+    const newUser: User = { ...userData, id: 'USR-' + Date.now().toString().slice(-5), passwordHash: await hashPassword(pass), createdAt: new Date().toISOString() };
+    StorageService.saveUser(newUser);
+    StorageService.setSession(newUser);
+    setCurrentUser(newUser);
+    return { success: true, message: 'Success' };
+  };
+
+  const logout = () => { StorageService.setSession(null); setCurrentUser(null); };
+
+  return (
+    <AuthContext.Provider value={{ currentUser, login, register, logout, isAdmin: currentUser?.role === 'admin' }}>
+      {children}
+    </AuthContext.Provider>
+  );
+};
+
+export const useAuth = () => {
+  const c = useContext(AuthContext);
+  if (!c) throw new Error('useAuth must be in AuthProvider');
+  return c;
+};`,
+
+      "src/main.tsx": `import React from 'react';
+import ReactDOM from 'react-dom/client';
+import App from './App';
+import './index.css';
+import { AuthProvider } from './context/AuthContext';
+
+if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
+  window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js'));
+}
+
+ReactDOM.createRoot(document.getElementById('root')!).render(
+  <React.StrictMode>
+    <AuthProvider>
+      <App />
+    </AuthProvider>
+  </React.StrictMode>
+);`,
+
+      "src/App.tsx": `import React, { useState } from 'react';
+import { useAuth } from './context/AuthContext';
+import { StorageService } from './services/storage';
+import { Building2, Home, Wrench, AlertCircle, FolderKanban, Bell, UserCircle2, ShieldCheck, LogOut, LogIn, CheckCircle2, TrendingUp, Users } from 'lucide-react';
+
+export const App: React.FC = () => {
+  const [tab, setTab] = useState('home');
+  const { currentUser, logout, login, register, isAdmin } = useAuth();
+  const [complaintForm, setComplaintForm] = useState({ category: 'Drinking Water' as const, location: '', desc: '' });
+  const [authEmail, setAuthEmail] = useState('');
+  const [authPass, setAuthPass] = useState('');
+  const [statusMsg, setStatusMsg] = useState('');
+
+  const complaints = StorageService.getComplaints();
+  const projects = StorageService.getProjects();
+  const notices = StorageService.getAnnouncements();
+
+  const handleLodgeComplaint = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!currentUser) { setStatusMsg('Please login to file a complaint.'); return; }
+    StorageService.saveComplaint({
+      id: 'CMP-' + Math.floor(1000 + Math.random() * 9000),
+      citizenId: currentUser.id,
+      citizenName: currentUser.name,
+      village: currentUser.village,
+      ward: currentUser.wardNumber,
+      category: complaintForm.category,
+      description: complaintForm.desc,
+      locationDetails: complaintForm.location,
+      status: 'Submitted',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    });
+    setComplaintForm({ category: 'Drinking Water', location: '', desc: '' });
+    setStatusMsg('Grievance lodged successfully!');
+  };
+
+  return (
+    <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900">
+      <header className="sticky top-0 z-50 bg-white border-b border-slate-200 shadow-sm px-4 lg:px-8 py-3 flex items-center justify-between">
+        <div className="flex items-center gap-2 cursor-pointer" onClick={() => setTab('home')}>
+          <div className="w-10 h-10 bg-panchayat-green-600 text-white rounded-xl flex items-center justify-center font-bold">
+            <Building2 className="w-6 h-6" />
+          </div>
+          <div>
+            <h1 className="font-bold text-base text-slate-800 leading-none">DVDS Portal</h1>
+            <span className="text-[10px] text-slate-500 uppercase font-semibold">Digital Gram Panchayat</span>
+          </div>
+        </div>
+
+        <nav className="hidden md:flex items-center gap-2 text-xs font-semibold">
+          {['home', 'services', 'complaints', 'projects', 'announcements'].map(t => (
+            <button key={t} onClick={() => setTab(t)} className={\`px-3 py-1.5 rounded-lg capitalize \${tab === t ? 'bg-panchayat-green-50 text-panchayat-green-700' : 'text-slate-600 hover:bg-slate-100'}\`}>
+              {t}
+            </button>
+          ))}
+        </nav>
+
+        <div className="flex items-center gap-2 text-xs">
+          {currentUser ? (
+            <div className="flex items-center gap-3">
+              <span className="font-semibold text-slate-700">{currentUser.name} ({currentUser.role})</span>
+              {isAdmin && <button onClick={() => setTab('admin')} className="px-2.5 py-1 bg-blue-50 text-blue-700 font-bold rounded">Admin Desk</button>}
+              <button onClick={logout} className="p-1.5 text-rose-600 hover:bg-rose-50 rounded"><LogOut className="w-4 h-4" /></button>
+            </div>
+          ) : (
+            <button onClick={() => setTab('login')} className="px-3.5 py-1.5 bg-panchayat-green-600 text-white rounded-lg font-bold">Sign In</button>
+          )}
+        </div>
+      </header>
+
+      <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
+        {statusMsg && <div className="mb-4 p-3 bg-emerald-100 text-emerald-800 rounded-lg text-xs font-bold">{statusMsg}</div>}
+
+        {tab === 'home' && (
+          <div className="space-y-8">
+            <div className="bg-gradient-to-r from-panchayat-green-700 to-panchayat-blue-700 text-white rounded-2xl p-8 text-center sm:text-left sm:p-12">
+              <span className="px-3 py-1 bg-white/20 text-xs font-bold rounded-full">🌱 E-Governance Portal</span>
+              <h2 className="text-3xl sm:text-4xl font-extrabold mt-3">Digital Village Development System</h2>
+              <p className="mt-2 text-emerald-100 max-w-xl text-sm">Direct citizen services, real-time grievance tracking, and transparent public project allocation.</p>
+              <div className="mt-6 flex flex-wrap gap-2">
+                <button onClick={() => setTab('complaints')} className="px-4 py-2 bg-white text-panchayat-green-800 rounded-lg font-bold text-xs">Lodge Complaint</button>
+                <button onClick={() => setTab('projects')} className="px-4 py-2 bg-emerald-900/40 border border-white/20 text-white rounded-lg font-semibold text-xs">Public Ledger</button>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="bg-white p-5 rounded-xl border border-slate-200">
+                <span className="text-xs text-slate-500 font-bold uppercase">Complaints Handled</span>
+                <p className="text-2xl font-bold text-slate-800 mt-1">{complaints.length}</p>
+              </div>
+              <div className="bg-white p-5 rounded-xl border border-slate-200">
+                <span className="text-xs text-slate-500 font-bold uppercase">Sanctioned Works</span>
+                <p className="text-2xl font-bold text-emerald-700 mt-1">{projects.length} Projects</p>
+              </div>
+              <div className="bg-white p-5 rounded-xl border border-slate-200">
+                <span className="text-xs text-slate-500 font-bold uppercase">Registered Wards</span>
+                <p className="text-2xl font-bold text-blue-700 mt-1">6 Wards</p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {tab === 'complaints' && (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="bg-white p-6 rounded-xl border border-slate-200 h-fit">
+              <h3 className="font-bold text-base mb-3">Lodge a Grievance</h3>
+              <form onSubmit={handleLodgeComplaint} className="space-y-3 text-xs">
+                <div>
+                  <label className="font-semibold block mb-1">Category</label>
+                  <select value={complaintForm.category} onChange={e => setComplaintForm({ ...complaintForm, category: e.target.value as any })} className="w-full p-2 border rounded">
+                    <option>Drinking Water</option><option>Electricity</option><option>Road Maintenance</option><option>Sanitation & Drainage</option><option>Streetlights</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="font-semibold block mb-1">Landmark / Location</label>
+                  <input required value={complaintForm.location} onChange={e => setComplaintForm({ ...complaintForm, location: e.target.value })} placeholder="e.g. Near Ward 3 Well" className="w-full p-2 border rounded" />
+                </div>
+                <div>
+                  <label className="font-semibold block mb-1">Description</label>
+                  <textarea required rows={3} value={complaintForm.desc} onChange={e => setComplaintForm({ ...complaintForm, desc: e.target.value })} placeholder="Explain issue..." className="w-full p-2 border rounded" />
+                </div>
+                <button type="submit" className="w-full py-2 bg-panchayat-green-600 text-white rounded font-bold">Submit</button>
+              </form>
+            </div>
+
+            <div className="md:col-span-2 space-y-3">
+              <h3 className="font-bold text-base">Grievance History</h3>
+              {complaints.map(c => (
+                <div key={c.id} className="bg-white p-4 rounded-xl border border-slate-200 text-xs space-y-1">
+                  <div className="flex justify-between font-bold">
+                    <span className="text-blue-700">{c.id} - {c.category}</span>
+                    <span className="px-2 py-0.5 rounded bg-amber-100 text-amber-800">{c.status}</span>
+                  </div>
+                  <p className="text-slate-600">{c.description}</p>
+                  <p className="text-[11px] text-slate-400">Location: {c.locationDetails} | Resident: {c.citizenName}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {tab === 'projects' && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {projects.map(p => (
+              <div key={p.id} className="bg-white p-5 rounded-xl border border-slate-200 text-xs space-y-2">
+                <div className="flex justify-between items-center">
+                  <span className="font-mono text-slate-400 font-bold">{p.id}</span>
+                  <span className="px-2 py-0.5 rounded bg-blue-100 text-blue-800 font-bold">{p.status}</span>
+                </div>
+                <h4 className="font-bold text-sm text-slate-800">{p.title}</h4>
+                <p className="text-slate-500">{p.description}</p>
+                <div className="pt-2 border-t font-semibold">
+                  <p>Budget: ₹{p.budgetInLakhs} Lakhs | Spent: ₹{p.spentInLakhs} Lakhs</p>
+                  <p className="text-panchayat-green-700 mt-1">Progress: {p.progressPercent}%</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {tab === 'announcements' && (
+          <div className="space-y-3 max-w-3xl mx-auto">
+            {notices.map(n => (
+              <div key={n.id} className="bg-white p-5 rounded-xl border border-slate-200 text-xs">
+                <span className="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-bold">{n.category}</span>
+                <h4 className="font-bold text-sm text-slate-800 mt-2">{n.title}</h4>
+                <p className="text-slate-600 mt-1">{n.content}</p>
+                <span className="block mt-2 text-[10px] text-slate-400">Date: {n.date} • {n.postedBy}</span>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {tab === 'login' && (
+          <div className="max-w-sm mx-auto bg-white p-6 rounded-2xl border border-slate-200 shadow-md">
+            <h3 className="text-lg font-bold text-center mb-4">Sign In</h3>
+            <form onSubmit={async (e) => {
+              e.preventDefault();
+              const res = await login(authEmail, authPass);
+              if (res.success) { setTab('home'); setStatusMsg('Signed in successfully!'); } else setStatusMsg(res.message);
+            }} className="space-y-3 text-xs">
+              <input type="email" placeholder="Email" required value={authEmail} onChange={e => setAuthEmail(e.target.value)} className="w-full p-2.5 border rounded" />
+              <input type="password" placeholder="Password" required value={authPass} onChange={e => setAuthPass(e.target.value)} className="w-full p-2.5 border rounded" />
+              <button type="submit" className="w-full py-2 bg-panchayat-green-600 text-white rounded font-bold">Login</button>
+            </form>
+            <div className="mt-4 pt-3 border-t text-[11px] flex gap-2">
+              <button onClick={() => { setAuthEmail('admin@panchayat.gov.in'); setAuthPass('Admin@123'); }} className="flex-1 py-1 bg-blue-50 text-blue-700 rounded font-bold">Fill Admin</button>
+              <button onClick={() => { setAuthEmail('ramesh@gmail.com'); setAuthPass('Ramesh@123'); }} className="flex-1 py-1 bg-emerald-50 text-emerald-700 rounded font-bold">Fill Citizen</button>
+            </div>
+          </div>
+        )}
+      </main>
+
+      <footer className="bg-slate-900 text-slate-400 text-xs p-6 text-center">
+        <p>© 2026 Digital Village Development System (DVDS). Ready for Vercel deployment.</p>
+      </footer>
+    </div>
+  );
+};
+
+export default App;`,
+
+      "README.md": `# Digital Village Development System (DVDS)
+
+A modern, responsive Gram Panchayat Citizen Services & E-Governance Web Application built with React, Vite, TypeScript, Tailwind CSS, and PWA support.
+
+## 🚀 Quick Start Local Execution
+\`\`\`bash
+npm install
+npm run dev
+\`\`\`
+
+## 🌐 Deploy to Vercel
+1. Run \`npm run build\` to verify TypeScript compilation.
+2. Push this directory to your GitHub repository.
+3. Import the repository into [Vercel](https://vercel.com) (Framework: Vite).
+4. Click **Deploy**.
+
+## 🔑 Demo Credentials
+- **Admin (Gram Sachiv)**: \`admin@panchayat.gov.in\` | \`Admin@123\`
+- **Citizen**: \`ramesh@gmail.com\` | \`Ramesh@123\`
+`
+    };
+
+    document.getElementById('downloadBtn').addEventListener('click', async () => {
+      const status = document.getElementById('status');
+      status.textContent = 'Generating digital-village-dvds.zip archive...';
+      const zip = new JSZip();
+
+      for (const [path, content] of Object.entries(files)) {
+        zip.file(path, content);
+      }
+
+      const blob = await zip.generateAsync({ type: 'blob' });
+      saveAs(blob, 'digital-village-dvds.zip');
+      status.textContent = '✅ Download complete! Extract and deploy to Vercel.';
+    });
+  </script>
+</body>
+</html>
